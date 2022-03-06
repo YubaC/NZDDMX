@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字游戏</title>
+    <title>牛振de大冒险</title>
 </head>
 
 <body>
@@ -135,6 +135,8 @@
         mob_x_old = 0;
         mob_y_old = 0;
 
+        heti = false;
+
         var booming;
 
         boom_power = 1;
@@ -171,9 +173,9 @@
             ["草", "草", "草", "草", "草", "草", "草", "草", "草", "草", "草", "草"]
         ];
 
-        word = ["水", "桥", "草", "人", "怪", "土"];
+        word = ["水", "桥", "草", "牛", "振", "土"];
         color = ["blue", "orange", "green", "red", "red", "Sienna"];
-        passable = ["草", "桥", "土", "怪"];
+        passable = ["草", "桥", "土", "振"];
 
         //初始化
         drawmap();
@@ -567,11 +569,11 @@
         }
 
         function drawmap_base() {
-            map[x][y] = '人';
-            if (!peace.checked && !booming) {
-                map[mob_x][mob_y] = "怪";
+            map[x][y] = '牛';
+            if (!peace.checked && !booming && !heti) {
+                map[mob_x][mob_y] = "振";
             }
-            if (boom_x != -1 && boom_y != -1) { //有人放了炸弹
+            if (boom_x != -1 && boom_y != -1) { //有牛放了炸弹
                 map[boom_x][boom_y] = "&#128163";
             }
             //画地图
@@ -585,7 +587,7 @@
                     } else if (map[i][j] == "草_new") { //新生成的草变成普通的草，"草_new"是为了防止草蔓延的时候一次刷新多格（新手保护？）
                         line += "草";
                         map[i][j] = "草";
-                    } else if ((peace.checked || booming) && map[i][j] == "怪") {
+                    } else if ((peace.checked || booming) && map[i][j] == "振") {
                         line += "土";
                         map[i][j] = "土";
                     } else {
@@ -637,7 +639,7 @@
             color = map_input[map_input.length - 2]; //倒数第二行是新的color数组
             passable = map_input[map_input.length - 1]; //倒数第一行是新的passable数组
 
-            x = 0; //“人”回到初始位置
+            x = 0; //“牛”回到初始位置
             y = 0;
 
             block = map_input[0][0];
@@ -646,14 +648,14 @@
             drawmap_base();
         }
 
-        function mob_move_prepare() { //怪物移动的方向与步数确定
+        function mob_move_prepare() { //振物移动的方向与步数确定
             if (find_direction_times < 10) { //尝试10次寻找方向
                 mob_direction = Math.floor(Math.random() * 4);
 
                 switch (mob_direction) {
                     case 0:
                         { //上
-                            if (mob_x - 1 > -1 && (contains(passable, map[mob_x - 1][mob_y]) || map[mob_x - 1][mob_y] == "人" || map[mob_x - 1][mob_y] == "炸")) {
+                            if (mob_x - 1 > -1 && (contains(passable, map[mob_x - 1][mob_y]) || map[mob_x - 1][mob_y] == "牛" || map[mob_x - 1][mob_y] == "炸")) {
                                 mob_step = Math.floor(Math.random() * map.length);
                                 mob_move(-mob_step, 0);
                                 // console.log("0");
@@ -666,7 +668,7 @@
                         }
                     case 1:
                         { //下
-                            if (mob_x + 1 < map.length && (contains(passable, map[mob_x + 1][mob_y]) || map[mob_x + 1][mob_y] == "人" || map[mob_x + 1][mob_y] == "炸")) {
+                            if (mob_x + 1 < map.length && (contains(passable, map[mob_x + 1][mob_y]) || map[mob_x + 1][mob_y] == "牛" || map[mob_x + 1][mob_y] == "炸")) {
                                 mob_step = Math.floor(Math.random() * map.length);
                                 mob_move(mob_step, 0);
                                 // console.log("1");
@@ -679,7 +681,7 @@
                         }
                     case 2:
                         { //左
-                            if (mob_y - 1 > -1 && (contains(passable, map[mob_x][mob_y - 1]) || map[mob_x][mob_y - 1] == "人" || map[mob_x][mob_y - 1] == "炸")) {
+                            if (mob_y - 1 > -1 && (contains(passable, map[mob_x][mob_y - 1]) || map[mob_x][mob_y - 1] == "牛" || map[mob_x][mob_y - 1] == "炸")) {
                                 mob_step = Math.floor(Math.random() * map[0].length);
                                 mob_move(0, -mob_step);
                                 // console.log("2");
@@ -692,7 +694,7 @@
                         }
                     case 3:
                         { //右
-                            if (mob_y + 1 < map.length && (contains(passable, map[mob_x][mob_y + 1]) || map[mob_x][mob_y + 1] == "人" || map[mob_x][mob_y + 1] == "炸")) {
+                            if (mob_y + 1 < map.length && (contains(passable, map[mob_x][mob_y + 1]) || map[mob_x][mob_y + 1] == "牛" || map[mob_x][mob_y + 1] == "炸")) {
                                 mob_step = Math.floor(Math.random() * map[0].length);
                                 mob_move(0, mob_step);
                                 // console.log("3");
@@ -708,16 +710,16 @@
                 console.log(1);
             } else { //10次都没找到能走的方向(运气不佳)
                 //依次将上下左右检测一遍
-                if (mob_x - 1 > -1 && (contains(passable, map[mob_x - 1][mob_y]) || map[mob_x - 1][mob_y] == "人" || map[mob_x - 1][mob_y] == "炸")) {
+                if (mob_x - 1 > -1 && (contains(passable, map[mob_x - 1][mob_y]) || map[mob_x - 1][mob_y] == "牛" || map[mob_x - 1][mob_y] == "炸")) {
                     mob_step = Math.floor(Math.random() * map.length);
                     mob_move(-mob_step, 0);
-                } else if (mob_x + 1 < map.length && (contains(passable, map[mob_x + 1][mob_y]) || map[mob_x + 1][mob_y] == "人" || map[mob_x + 1][mob_y] == "炸")) {
+                } else if (mob_x + 1 < map.length && (contains(passable, map[mob_x + 1][mob_y]) || map[mob_x + 1][mob_y] == "牛" || map[mob_x + 1][mob_y] == "炸")) {
                     mob_step = Math.floor(Math.random() * map.length);
                     mob_move(mob_step, 0);
-                } else if (mob_y - 1 > -1 && (contains(passable, map[mob_x][mob_y - 1]) || map[mob_x][mob_y - 1] == "人" || map[mob_x][mob_y - 1] == "炸")) {
+                } else if (mob_y - 1 > -1 && (contains(passable, map[mob_x][mob_y - 1]) || map[mob_x][mob_y - 1] == "牛" || map[mob_x][mob_y - 1] == "炸")) {
                     mob_step = Math.floor(Math.random() * map[0].length);
                     mob_move(0, -mob_step);
-                } else if (mob_y + 1 < map.length && (contains(passable, map[mob_x][mob_y + 1]) || map[mob_x][mob_y + 1] == "人" || map[mob_x][mob_y + 1] == "炸")) {
+                } else if (mob_y + 1 < map.length && (contains(passable, map[mob_x][mob_y + 1]) || map[mob_x][mob_y + 1] == "牛" || map[mob_x][mob_y + 1] == "炸")) {
                     mob_step = Math.floor(Math.random() * map[0].length);
                     mob_move(0, mob_step);
                 } else { //上下左右都走不了(不是运气的事了)
@@ -729,7 +731,7 @@
             // console.log(mob_direction, mob_step);
         }
 
-        // 怪物运动解算
+        // 振物运动解算
         function mob_move(x_add, y_add) {
             if (x_add != 0) { //计算在x轴方向上需要走的步数
                 x_step = x_add / Math.abs(x_add);
@@ -745,8 +747,8 @@
 
         }
 
-        function mob_onmove() { //怪物运动绘图
-            if (!peace.checked) { //如果不是和平模式
+        function mob_onmove() { //振物运动绘图
+            if (!peace.checked && !heti) { //如果不是和平模式
                 if (-1 < mob_x + x_step && mob_x + x_step < map.length && -1 < mob_y + y_step && mob_y + y_step < map[0].length) { //如果能走
                     if (contains(passable, map[mob_x + x_step][mob_y + y_step])) {
                         mob_x_old = mob_x;
@@ -760,7 +762,7 @@
                         mob_y += y_step;
 
                         drawmap_base();
-                    } else if (map[mob_x + x_step][mob_y + y_step] == "人") { //如果下一步碰到了"人"
+                    } else if (map[mob_x + x_step][mob_y + y_step] == "牛") { //如果下一步碰到了"牛"
                         gameover(0);
                     }
                 }
@@ -812,10 +814,20 @@
         // 移动
         function left() {
             if (y > 0 && contains(passable, map[x][y - 1])) { //如果不会出地图并且前面的方块可以踩上去
-                if (map[x][y - 1] == "怪") {
+                if (map[x][y - 1] == "振" && !heti) {
                     gameover(0);
                 } else {
                     block_old = block; //block_old更新为当前所在的方块（block：当前所在的方块 block_old：上一个走过的方块）
+                    if (heti) {
+                        for (i = 0; i < map.length; i++) {
+                            for (j = 0; j < map[i].length; j++) {
+                                if (map[i][j] == "振") {
+                                    map[i][j] = "草";
+                                }
+                            }
+                        }
+                        block_old = "振";
+                    }
                     block = map[x][y - 1]; //block更新为即将走到的方块
                     x_old = x;
                     y_old = y;
@@ -827,10 +839,20 @@
 
         function right() {
             if (y < map[x].length - 1 && contains(passable, map[x][y + 1])) {
-                if (map[x][y + 1] == "怪") {
+                if (map[x][y + 1] == "振" && !heti) {
                     gameover(0);
                 } else {
                     block_old = block;
+                    if (heti) {
+                        for (i = 0; i < map.length; i++) {
+                            for (j = 0; j < map[i].length; j++) {
+                                if (map[i][j] == "振") {
+                                    map[i][j] = "草";
+                                }
+                            }
+                        }
+                        block_old = "振";
+                    }
                     block = map[x][y + 1];
                     x_old = x;
                     y_old = y;
@@ -842,10 +864,20 @@
 
         function up() {
             if (x > 0 && contains(passable, map[x - 1][y])) {
-                if (map[x - 1][y] == "怪") {
+                if (map[x - 1][y] == "振" && !heti) {
                     gameover(0);
                 } else {
                     block_old = block;
+                    if (heti) {
+                        for (i = 0; i < map.length; i++) {
+                            for (j = 0; j < map[i].length; j++) {
+                                if (map[i][j] == "振") {
+                                    map[i][j] = "草";
+                                }
+                            }
+                        }
+                        block_old = "振";
+                    }
                     block = map[x - 1][y];
                     x_old = x;
                     y_old = y;
@@ -857,10 +889,20 @@
 
         function down() {
             if (x < map.length - 1 && contains(passable, map[x + 1][y])) {
-                if (map[x + 1][y] == "怪") {
+                if (map[x + 1][y] == "振" && !heti) {
                     gameover(0);
                 } else {
                     block_old = block;
+                    if (heti) {
+                        for (i = 0; i < map.length; i++) {
+                            for (j = 0; j < map[i].length; j++) {
+                                if (map[i][j] == "振") {
+                                    map[i][j] = "草";
+                                }
+                            }
+                        }
+                        block_old = "振";
+                    }
                     block = map[x + 1][y];
                     x_old = x;
                     y_old = y;
@@ -888,9 +930,9 @@
             for (q = -1 - boom_power; q < 2 + boom_power; q++) {
                 for (w = -1 - boom_power; w < 2 + boom_power; w++) {
                     if (boom_x + q > -1 && boom_y + w > -1 && boom_x + q < map.length && boom_y + w < map[boom_x].length) {
-                        if (map[boom_x + q][boom_y + w] == "人") {
+                        if (boom_x + q == x && boom_y + w == y) {
                             var over = true;
-                        } else if (map[boom_x + q][boom_y + w] == "怪") {
+                        } else if (map[boom_x + q][boom_y + w] == "振") {
                             booming = true;
                             setTimeout("mobrestart()", 3000);
                         }
@@ -973,10 +1015,10 @@
         function gameover(reason) { //0：碰到mob 1：被炸死
             if (!unmatched.checked) {
                 if (reason == 0) {
-                    map[x][y] = '<span style="color: red;">怪</span>';
-                    point_out = "你 被 怪物 击败了！";
+                    window.alert("合体！")
+                    heti = true;
                 } else {
-                    point_out = "你 爆炸了！";
+                    point_out = "牛振 爆炸了！";
                 }
 
 
